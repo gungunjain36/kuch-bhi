@@ -21,6 +21,7 @@ import type { Metadata } from "next"
 import { Instrument_Serif } from "next/font/google"
 import { MinimalCard, MinimalCardDescription, MinimalCardTitle } from "@/components/ui/minimal-card"
 import Footer from "@/components/footer"
+import WaitlistDialog from "@/components/waitlist-dialog"
 
 const instrumentSerif = Instrument_Serif({
   weight: ["400"],
@@ -197,10 +198,12 @@ function RoadmapCard({ item }: { item: RoadmapItem }) {
             {item.checked ? "Enabled" : "Planned"}
           </label>
         </div>
-        <Button variant="ghost" size="sm" className="h-7 rounded-lg px-2 text-slate-800 hover:bg-slate-100">
-          Learn more
-          <ArrowRight className="ml-1.5 h-3.5 w-3.5" aria-hidden="true" />
-        </Button>
+        <Link href="https://puch.ai/mcp/y5KzK0ipnu" target="_blank" rel="noopener noreferrer" className="rounded-lg">
+          <Button variant="ghost" size="sm" className="h-7 rounded-lg px-2 text-slate-800 hover:bg-slate-100">
+            Learn more
+            <ArrowRight className="ml-1.5 h-3.5 w-3.5" aria-hidden="true" />
+          </Button>
+        </Link>
       </div>
     </div>
   )
@@ -252,17 +255,19 @@ export default function Page() {
             </Button>
           </Link>
 
-          <Link href="https://github.com/gungunjain36/kuch-bhi" target="_blank" rel="noopener noreferrer" className="rounded-2xl">
-            <Button
-              variant="outline"
-              size="lg"
-              className="rounded-2xl border-slate-200 bg-white text-slate-800 hover:bg-slate-50"
-            >
-              <Github className="mr-2 h-4 w-4" aria-hidden="true" />
-              View on GitHub
-            </Button>
-          </Link>
+          <WaitlistDialog
+            trigger={
+              <Button
+                variant="outline"
+                size="lg"
+                className="rounded-2xl border-slate-200 bg-white text-slate-800 hover:bg-slate-50"
+              >
+                Join waitlist
+              </Button>
+            }
+          />
         </div>
+
       </main>
 
       {/* Supported Today: starts after full screen hero */}
@@ -316,6 +321,8 @@ export default function Page() {
           </div>
         </div>
       </section>
+
+      {/* Waitlist modal is triggered from hero; no separate section */}
 
       <Footer />
     </div>

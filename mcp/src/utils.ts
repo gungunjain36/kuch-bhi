@@ -105,10 +105,109 @@ export async function fetchUpstreamAuthToken({
 	return [body.access_token, null];
 }
 
+export interface TokenResponse {
+    access_token: string;
+    refresh_token?: string;
+    expires_in?: number;
+    token_type?: string;
+    scope?: string;
+}
+
+/**
+ * Fetches an authorization token from an upstream service and returns the full token response.
+ */
+export async function fetchUpstreamAuthTokenDetailed({
+    clientId,
+    clientSecret,
+    code,
+    redirectUri,
+    upstreamUrl,
+    grantType,
+}: {
+    code: string | undefined;
+    upstreamUrl: string;
+    clientSecret: string;
+    redirectUri: string;
+    clientId: string;
+    grantType: string;
+}): Promise<[TokenResponse, null] | [null, Response]> {
+    if (!code) {
+        return [null, new Response("Missing code", { status: 400 })];
+    }
+
+    const resp = await fetch(upstreamUrl, {
+        body: new URLSearchParams({
+            clientId,
+            clientSecret,
+            code,
+            grantType,
+            redirectUri,
+        }).toString(),
+        headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+        },
+        method: "POST",
+    });
+    if (!resp.ok) {
+        console.log(await resp.text());
+        return [null, new Response("Failed to fetch access token", { status: 500 })];
+    }
+
+    const body = (await resp.json()) as TokenResponse;
+    if (!body.access_token) {
+        return [null, new Response("Missing access token", { status: 400 })];
+    }
+    return [body, null];
+}
+
+/**
+ * Refreshes an access token using a refresh token and returns the full token response.
+ */
+export async function refreshUpstreamAccessToken({
+    clientId,
+    clientSecret,
+    refreshToken,
+    upstreamUrl,
+}: {
+    upstreamUrl: string;
+    clientSecret: string;
+    clientId: string;
+    refreshToken: string;
+}): Promise<[TokenResponse, null] | [null, Response]> {
+    if (!refreshToken) {
+        return [null, new Response("Missing refresh token", { status: 400 })];
+    }
+
+    const resp = await fetch(upstreamUrl, {
+        body: new URLSearchParams({
+            clientId,
+            clientSecret,
+            grantType: "refresh_token",
+            refreshToken,
+        }).toString(),
+        headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+        },
+        method: "POST",
+    });
+    if (!resp.ok) {
+        console.log(await resp.text());
+        return [null, new Response("Failed to refresh access token", { status: 500 })];
+    }
+
+    const body = (await resp.json()) as TokenResponse;
+    if (!body.access_token) {
+        return [null, new Response("Missing access token", { status: 400 })];
+    }
+    return [body, null];
+}
+
 // Context from the auth process, encrypted & stored in the auth token
 // and provided to the MyMCP as this.props
 export type Props = {
 	name: string;
 	email: string;
 	accessToken: string;
+    refreshToken?: string;
+    userId?: string;
 };

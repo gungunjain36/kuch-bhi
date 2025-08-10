@@ -1,6 +1,6 @@
 import type { AuthRequest, OAuthHelpers } from '@cloudflare/workers-oauth-provider'
 import { type Context, Hono } from 'hono'
-import { fetchUpstreamAuthToken, getUpstreamAuthorizeUrl, type Props } from './utils'
+import { fetchUpstreamAuthTokenDetailed, getUpstreamAuthorizeUrl, type Props } from './utils'
 import { clientIdAlreadyApproved, parseRedirectApproval, renderApprovalDialog } from './workers-oauth-utils'
 
 const app = new Hono<{ Bindings: Env & { OAUTH_PROVIDER: OAuthHelpers } }>()
@@ -89,7 +89,7 @@ app.get('/callback', async (c: Context) => {
     return c.text('Missing code', 400)
   }
 
-  const [accessToken, googleErrResponse] = await fetchUpstreamAuthToken({
+  const [tokenResponse, googleErrResponse] = await fetchUpstreamAuthTokenDetailed({
     clientId: c.env.GOOGLE_CLIENT_ID,
     clientSecret: c.env.GOOGLE_CLIENT_SECRET,
     code,
@@ -104,7 +104,7 @@ app.get('/callback', async (c: Context) => {
   // Fetch the user info from Google
   const userResponse = await fetch('https://www.googleapis.com/oauth2/v2/userinfo', {
     headers: {
-      Authorization: `Bearer ${accessToken}`,
+      Authorization: `Bearer ${tokenResponse.access_token}`,
     },
   })
   if (!userResponse.ok) {
@@ -123,9 +123,11 @@ app.get('/callback', async (c: Context) => {
       label: name,
     },
     props: {
-      accessToken,
+      accessToken: tokenResponse.access_token,
       email,
       name,
+      refreshToken: tokenResponse.refresh_token,
+      userId: id,
     } as Props,
     request: oauthReqInfo,
     scope: oauthReqInfo.scope,

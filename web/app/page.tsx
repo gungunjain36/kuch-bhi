@@ -34,11 +34,11 @@ export const metadata: Metadata = {
 
 function Background() {
   return (
-    <div aria-hidden="true" className="pointer-events-none absolute inset-0 -z-10">
+    <div aria-hidden="true" className="pointer-events-none absolute inset-x-0 top-0 z-0 h-[65vh] sm:h-[70vh]">
       <div
         className="absolute inset-0"
         style={{
-          backgroundImage: "radial-gradient(125% 125% at 50% 90%, #ffffff 40%, #ec4899 100%)",
+          backgroundImage: "radial-gradient(100% 70% at 50% 0%, rgba(125, 211, 252, 0.34), transparent 82%)",
           backgroundSize: "100% 100%",
         }}
       />
@@ -83,7 +83,7 @@ function Navbar() {
                 Try kuch bhi
               </Button>
             </Link>
-            <Link href="https://github.com" target="_blank" rel="noopener noreferrer" className="rounded-xl">
+            <Link href="https://github.com/gungunjain36/kuch-bhi" target="_blank" rel="noopener noreferrer" className="rounded-xl">
               <Button
                 variant="outline"
                 size="sm"
@@ -212,13 +212,8 @@ export default function Page() {
       <Background />
       <Navbar />
 
-      {/* Hero: full screen, centered */}
-      <main className="relative mx-auto flex min-h-[100dvh] max-w-5xl flex-col items-center justify-center px-4 pt-24">
-        {/* Hero gradient boost */}
-        <div
-          aria-hidden="true"
-          className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-[520px] bg-[radial-gradient(620px_280px_at_50%_8%,rgba(255,190,80,0.45),transparent_60%),radial-gradient(720px_320px_at_60%_0%,rgba(255,90,90,0.35),transparent_60%)]"
-        />
+      {/* Hero: centered, slightly higher on the page */}
+      <main className="relative mx-auto flex min-h-[80dvh] max-w-5xl flex-col items-center justify-center px-4 pt-16 sm:pt-20">
         <div className="mb-6 flex items-center gap-2">
           <Badge
             variant="outline"
@@ -235,7 +230,7 @@ export default function Page() {
         </div>
 
         <h1
-          className={`bg-gradient-to-r from-amber-400 via-sky-400 to-blue-500 bg-clip-text text-center text-transparent text-4xl font-semibold tracking-tight sm:text-5xl md:text-6xl ${instrumentSerif.className}`}
+          className={`mx-auto max-w-3xl bg-gradient-to-r from-amber-400 via-sky-400 to-blue-500 bg-clip-text text-center text-transparent text-4xl font-semibold leading-tight tracking-tight sm:text-5xl md:text-6xl ${instrumentSerif.className}`}
         >
           Karo Kuch Bhi. Kahin Bhi.
         </h1>
@@ -257,7 +252,7 @@ export default function Page() {
             </Button>
           </Link>
 
-          <Link href="https://github.com" target="_blank" rel="noopener noreferrer" className="rounded-2xl">
+          <Link href="https://github.com/gungunjain36/kuch-bhi" target="_blank" rel="noopener noreferrer" className="rounded-2xl">
             <Button
               variant="outline"
               size="lg"

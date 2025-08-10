@@ -103,6 +103,110 @@ export class MyMCP extends McpAgent<Env, Record<string, never>, Props> {
       },
     )
 
+    // Gmail: search messages
+    this.server.tool(
+      'gmail_search_messages',
+      {
+        query: z
+          .string()
+          .describe(
+            'Gmail search query (e.g., from:"Wells Fargo" OR subject:"Wells Fargo" newer_than:1y). Uses Gmail search syntax.',
+          ),
+        maxResults: z
+          .number()
+          .int()
+          .min(1)
+          .max(100)
+          .optional()
+          .default(25),
+        includeSpamTrash: z.boolean().optional().default(false),
+        pageToken: z.string().optional(),
+      },
+      async ({ query, maxResults = 25, includeSpamTrash = false, pageToken }) => {
+        if (!this.props.accessToken) {
+          return { content: [{ type: 'text', text: REAUTH_HELP }] }
+        }
+
+        const listUrl = new URL('https://gmail.googleapis.com/gmail/v1/users/me/messages')
+        if (query) listUrl.searchParams.set('q', query)
+        if (maxResults) listUrl.searchParams.set('maxResults', String(maxResults))
+        if (includeSpamTrash) listUrl.searchParams.set('includeSpamTrash', 'true')
+        if (pageToken) listUrl.searchParams.set('pageToken', pageToken)
+
+        let listResp = await fetch(listUrl.toString(), { headers: { Authorization: `Bearer ${this.props.accessToken}` } })
+        if ((listResp.status === 401 || listResp.status === 403) && (await tryRefresh())) {
+          listResp = await fetch(listUrl.toString(), { headers: { Authorization: `Bearer ${this.props.accessToken}` } })
+        }
+        const listText = await listResp.text()
+        if (!listResp.ok) {
+          return {
+            content: [
+              {
+                type: 'text',
+                text: `${listResp.status === 401 || listResp.status === 403 ? REAUTH_HELP + ' ' : ''}Gmail search failed: ${listText}`,
+              },
+            ],
+          }
+        }
+        let listData: { messages?: Array<{ id: string; threadId: string }>; nextPageToken?: string } = {}
+        try {
+          listData = JSON.parse(listText)
+        } catch {}
+
+        const messages = listData.messages ?? []
+        const details: Array<{
+          id: string
+          threadId: string
+          from?: string
+          subject?: string
+          date?: string
+          snippet?: string
+          internalDate?: string
+        }> = []
+
+        for (const m of messages) {
+          const msgUrl = new URL(`https://gmail.googleapis.com/gmail/v1/users/me/messages/${encodeURIComponent(m.id)}`)
+          msgUrl.searchParams.set('format', 'metadata')
+          // Ask only for key headers
+          msgUrl.searchParams.append('metadataHeaders', 'From')
+          msgUrl.searchParams.append('metadataHeaders', 'Subject')
+          msgUrl.searchParams.append('metadataHeaders', 'Date')
+          let msgResp = await fetch(msgUrl.toString(), { headers: { Authorization: `Bearer ${this.props.accessToken}` } })
+          if ((msgResp.status === 401 || msgResp.status === 403) && (await tryRefresh())) {
+            msgResp = await fetch(msgUrl.toString(), { headers: { Authorization: `Bearer ${this.props.accessToken}` } })
+          }
+          if (!msgResp.ok) {
+            continue
+          }
+          const msg = (await msgResp.json()) as any
+          const headers: Array<{ name: string; value: string }> = msg?.payload?.headers ?? []
+          const getHeader = (name: string) => headers.find((h) => h.name?.toLowerCase() === name.toLowerCase())?.value
+          details.push({
+            id: m.id,
+            threadId: m.threadId,
+            from: getHeader('From'),
+            subject: getHeader('Subject'),
+            date: getHeader('Date'),
+            snippet: msg?.snippet,
+            internalDate: msg?.internalDate,
+          })
+        }
+
+        return {
+          content: [
+            {
+              type: 'text',
+              text: JSON.stringify({
+                count: details.length,
+                nextPageToken: listData.nextPageToken,
+                messages: details,
+              }),
+            },
+          ],
+        }
+      },
+    )
+
     // Drive: list files
     this.server.tool(
       'drive_list_files',

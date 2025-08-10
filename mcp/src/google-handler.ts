@@ -43,13 +43,15 @@ async function redirectToGoogle(c: Context, oauthReqInfo: AuthRequest, headers: 
         clientId: c.env.GOOGLE_CLIENT_ID,
         hostedDomain: c.env.HOSTED_DOMAIN,
         redirectUri: new URL('/callback', c.req.raw.url).href,
-        // Expanded scopes for Gmail, Drive, Docs, Sheets
+        // Expanded scopes for Gmail (send + read), Drive, Docs, Sheets
         scope:
           [
             'email',
             'profile',
             // Gmail send
             'https://www.googleapis.com/auth/gmail.send',
+            // Gmail read-only basic access for listing and reading message metadata/snippets
+            'https://www.googleapis.com/auth/gmail.readonly',
             // Drive read/write minimal safe set
             'https://www.googleapis.com/auth/drive.metadata.readonly',
             'https://www.googleapis.com/auth/drive.file',

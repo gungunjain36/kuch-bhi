@@ -340,12 +340,28 @@ export class MyMCP extends McpAgent<Env, Record<string, never>, Props> {
     // Docs: get document
     this.server.tool(
       'docs_get',
-      { docId: z.string() },
+      {
+        docId: z
+          .string()
+          .optional()
+          .describe('Document ID. If omitted, uses the most recently created document in this session.'),
+      },
       async ({ docId }) => {
         if (!this.props.accessToken) {
           return { content: [{ type: 'text', text: REAUTH_HELP }] }
         }
-        const url = `https://docs.googleapis.com/v1/documents/${encodeURIComponent(docId)}`
+        const effectiveDocId = docId ?? this.lastDocId
+        if (!effectiveDocId) {
+          return {
+            content: [
+              {
+                type: 'text',
+                text: 'No docId provided and no recent document found. Create a document first or pass docId explicitly.',
+              },
+            ],
+          }
+        }
+        const url = `https://docs.googleapis.com/v1/documents/${encodeURIComponent(effectiveDocId)}`
         let resp = await fetch(url, { headers: { Authorization: `Bearer ${this.props.accessToken}` } })
         if ((resp.status === 401 || resp.status === 403) && (await tryRefresh())) {
           resp = await fetch(url, { headers: { Authorization: `Bearer ${this.props.accessToken}` } })
@@ -360,6 +376,8 @@ export class MyMCP extends McpAgent<Env, Record<string, never>, Props> {
               },
             ],
           }
+        // keep track of last doc id if successful
+        this.lastDocId = effectiveDocId
         return { content: [{ type: 'text', text }] }
       },
     )

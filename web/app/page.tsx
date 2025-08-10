@@ -33,6 +33,8 @@ export const metadata: Metadata = {
   description: "An ultra‑minimal MCP server for WhatsApp. Powered by Puch AI.",
 }
 
+const TRY_LINK = process.env.TRY_LINK || "https://puch.ai/mcp/y5KzK0ipnu"
+
 function Background() {
   return (
     <div aria-hidden="true" className="pointer-events-none absolute inset-x-0 top-0 z-0 h-[65vh] sm:h-[70vh]">
@@ -53,7 +55,7 @@ function Navbar() {
       <div className="mx-auto max-w-5xl px-4">
         <nav
           aria-label="Primary"
-          className="mx-auto flex items-center justify-between rounded-2xl border border-slate-200/70 bg-white/80 px-3 py-2 shadow-sm backdrop-blur supports-[backdrop-filter]:bg-white/60"
+          className="mx-auto flex flex-wrap items-center justify-between gap-2 rounded-2xl border border-slate-200/70 bg-white/80 px-2 py-2 shadow-sm backdrop-blur supports-[backdrop-filter]:bg-white/60 sm:flex-nowrap sm:gap-0 sm:px-3"
         >
           <Link
             href="#"
@@ -66,13 +68,13 @@ function Navbar() {
             <div className={`font-semibold tracking-tight ${instrumentSerif.className}`}>kuch bhi</div>
           </Link>
           <div className="flex items-center gap-1.5">
-            <Link href="#supported" className="rounded-xl">
+            <Link href="#supported" className="hidden rounded-xl sm:block">
               <Button variant="ghost" size="sm" className="rounded-xl text-slate-800 hover:bg-slate-100">
                 Supported
               </Button>
             </Link>
             <Link
-              href="https://puch.ai/mcp/y5KzK0ipnu"
+              href={TRY_LINK}
               target="_blank"
               rel="noopener noreferrer"
               className="rounded-xl"
@@ -84,7 +86,7 @@ function Navbar() {
                 Try kuch bhi
               </Button>
             </Link>
-            <Link href="https://github.com/gungunjain36/kuch-bhi" target="_blank" rel="noopener noreferrer" className="rounded-xl">
+            <Link href="https://github.com/gungunjain36/kuch-bhi" target="_blank" rel="noopener noreferrer" className="hidden rounded-xl sm:block">
               <Button
                 variant="outline"
                 size="sm"
@@ -198,7 +200,7 @@ function RoadmapCard({ item }: { item: RoadmapItem }) {
             {item.checked ? "Enabled" : "Planned"}
           </label>
         </div>
-        <Link href="https://puch.ai/mcp/y5KzK0ipnu" target="_blank" rel="noopener noreferrer" className="rounded-lg">
+        <Link href={TRY_LINK} target="_blank" rel="noopener noreferrer" className="rounded-lg">
           <Button variant="ghost" size="sm" className="h-7 rounded-lg px-2 text-slate-800 hover:bg-slate-100">
             Learn more
             <ArrowRight className="ml-1.5 h-3.5 w-3.5" aria-hidden="true" />
@@ -244,7 +246,7 @@ export default function Page() {
 
         {/* CTA */}
         <div className="mt-8 flex flex-col items-center gap-3 sm:flex-row">
-          <Link href="https://puch.ai/mcp/y5KzK0ipnu" target="_blank" rel="noopener noreferrer" className="rounded-2xl">
+          <Link href={TRY_LINK} target="_blank" rel="noopener noreferrer" className="rounded-2xl">
             <Button
               size="lg"
               className="rounded-2xl bg-slate-900 px-5 text-white transition-colors hover:bg-slate-900/90 focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-slate-400"

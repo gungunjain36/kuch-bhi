@@ -33,7 +33,7 @@ export const metadata: Metadata = {
   description: "An ultra‑minimal MCP server for WhatsApp. Powered by Puch AI.",
 }
 
-const TRY_LINK = process.env.TRY_LINK || "https://puch.ai/mcp/y5KzK0ipnu"
+const TRY_LINK = process.env.TRY_LINK || "https://puch.ai/mcp/0eBGoHOTme"
 
 function Background() {
   return (

@@ -1,0 +1,27 @@
+{
+  "name": "kuchbhi-google-workspace-mcp",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "deploy": "wrangler deploy",
+    "dev": "wrangler dev",
+    "start": "wrangler dev",
+    "cf-typegen": "wrangler types",
+    "type-check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@cloudflare/workers-oauth-provider": "^0.0.5",
+    "@modelcontextprotocol/sdk": "1.17.1",
+    "agents": "^0.0.109",
+    "hono": "^4.8.12",
+    "just-pick": "^4.2.0",
+    "workers-mcp": "^0.0.13",
+    "zod": "^3.25.67"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20250803.0",
+    "prettier": "^3.6.2",
+    "typescript": "5.8.3",
+    "wrangler": "^4.27.0"
+  }
+}
